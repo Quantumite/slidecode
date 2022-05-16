@@ -40,6 +40,7 @@ class SlideCode():
 
     def set_first_key(self, key_value):
         """Set new value for first shellcode key."""
+        #Parses value given for first key and applies it to the correct offset.
         self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY] = int(key_value[:2], 16)
         self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+1] = int(key_value[2:4], 16)
         self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+2] = int(key_value[4:6], 16)
@@ -47,6 +48,7 @@ class SlideCode():
 
     def set_second_key(self, key_value):
         """Set new value for first shellcode key."""
+        #Parses value given for second key and applies it to the correct offset.
         self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY] = int(key_value[:2], 16)
         self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+1] = int(key_value[2:4], 16)
         self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+2] = int(key_value[4:6], 16)
@@ -54,6 +56,7 @@ class SlideCode():
 
     def set_third_key(self, key_value):
         """Set new value for first shellcode key."""
+        #Parses value given for third key and applies it to the correct offset.
         self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY] = int(key_value[:2], 16)
         self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+1] = int(key_value[2:4], 16)
         self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+2] = int(key_value[4:6], 16)
@@ -61,6 +64,7 @@ class SlideCode():
 
     def set_fourth_key(self, key_value):
         """Set new value for first shellcode key."""
+        #Parses value given for fourth key and applies it to the correct offset.
         self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY] = int(key_value[:2], 16)
         self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+1] = int(key_value[2:4], 16)
         self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+2] = int(key_value[4:6], 16)
@@ -69,6 +73,8 @@ class SlideCode():
 
     def process_key_string(self):
         """Parse and assign key string as shellcode keys."""
+        #Keys should be hexadecimal digits passed as a 
+        # comma-separated string to the -k argument.
         _parsed_key_list = self.key_string.split(',')
         _length_key_list = len(_parsed_key_list)
 
@@ -85,6 +91,7 @@ class SlideCode():
             self.set_fourth_key(_parsed_key_list[3])
 
         if _length_key_list >= 5:
+            #We ignore any extra keys
             if self.verbose:
                 print(slidecode.SLIDECODE_TOO_MANY_KEYS)
 
@@ -105,29 +112,32 @@ class SlideCode():
         for i in range(len(self._header)):
             if self._header[i] == 0xaa:
                 if self._header[i+1] == 0xbb and self._header[i+2] == 0xcc and self._header[i+3] == 0xdd:
-                    print("found trailer comparison")
                     _trailer_offset = i
                 
+        #Similar parsing to key values, but only one since the trailer
+        # is only 4 bytes.
         self._header[_trailer_offset] = int(trailer_value[:2], 16)
         self._header[_trailer_offset+1] = int(trailer_value[2:4], 16)
         self._header[_trailer_offset+2] = int(trailer_value[4:6], 16)
         self._header[_trailer_offset+3] = int(trailer_value[6:8], 16)
 
+        #Convert trailer string to bytearray for output
         self._trailer = bytearray(self._header[_trailer_offset:_trailer_offset+4])
 
 
 
     def encode(self):
         """Encode provided shellcode."""
+        #Keys are grabbed from the header shellcode in case they
+        # were modified by the user
         KEYS = [
             bytearray(self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY:slidecode.SLIDECODE_OFFSET_FIRST_KEY+4]),
             bytearray(self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY:slidecode.SLIDECODE_OFFSET_SECOND_KEY+4]),
             bytearray(self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY:slidecode.SLIDECODE_OFFSET_THIRD_KEY+4]),
             bytearray(self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY:slidecode.SLIDECODE_OFFSET_FOURTH_KEY+4]),
         ]
-        
 
-        #iterate through the length - 4 because operation applies to entire dword from address
+        #iterate through the length - 3 because operation applies to entire dword from address; address + 3 bytes more is full DWORD
         for i in range(0, len(self._infile_bytes)-3):
             #rotate through keys
             KEY = KEYS[i%4]
@@ -155,16 +165,23 @@ class SlideCode():
                 print(f"XOR: {hex(KEY[3] ^ self._infile_bytes[i+3])}")
             self._infile_bytes[i+3] = KEY[3] ^ self._infile_bytes[i+3]
 
+        #Convert to bytearray for output
         self._encoded_bytes = bytearray(self._infile_bytes)
 
     def run(self):
         """Process incoming shellcode and produce encoded shellcode."""
+        #By default, key_string is None. If it's not None then
+        # it was set by the user.
+        #Default values are already in shellcode header
         if self.key_string is not None:
             self.process_key_string()
 
+        #By default, _trailer is None. If it's not None then
+        # it was set by the user.
         if self._trailer is not None:
             self.process_trailer(self._trailer)
         else:
+            #Default value
             self._trailer = b"\xaa\xbb\xcc\xdd"
 
         self.encode()
@@ -180,6 +197,7 @@ class SlideCode():
             with open(self.outfile, 'wb') as f:
                 f.write(self._outfile_bytes)
         else:
+            #Default output file
             with open("slidecode_output.bin", 'wb') as f:
                 f.write(self._outfile_bytes)
 

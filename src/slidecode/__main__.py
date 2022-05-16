@@ -3,6 +3,8 @@ import argparse
 import slidecode
 
 def main():
+    """__main__.py - argument parsing functionality and ability to call slidecode as a module."""
+    #Process all arguments
     parser = argparse.ArgumentParser(
         description = slidecode.SLIDECODE_DESCRIPTION
     )
@@ -25,7 +27,11 @@ def main():
         dest="trailer", help=slidecode.SLIDECODE_TRAILER_HELP)
 
     args = parser.parse_args()
+
+    #Setup SlideCode object
     sc = slidecode.SlideCode(infile=args.in_file, outfile=args.out_file, verbose=args.verbose, key_string=args.keys, trailer=args.trailer)
+
+    #Encode and produce shellcode
     sc.run()
 
 
