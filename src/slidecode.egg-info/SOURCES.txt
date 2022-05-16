@@ -1,9 +1,0 @@
-README
-setup.py
-src/slidecode/__init__.py
-src/slidecode/slide_code.py
-src/slidecode/slide_code_constants.py
-src/slidecode.egg-info/PKG-INFO
-src/slidecode.egg-info/SOURCES.txt
-src/slidecode.egg-info/dependency_links.txt
-src/slidecode.egg-info/top_level.txt
