@@ -9,7 +9,7 @@
   - 32bit encoding only (so far)
 
 ## Video Link
-- [Link](todo)
+- [Link](https://youtu.be/TqMWnprlpXo)
 
 ## Installation
 - Requires python to be installed
