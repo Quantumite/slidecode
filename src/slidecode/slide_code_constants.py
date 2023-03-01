@@ -1,7 +1,7 @@
 # Python container for constants used in slidecode
 
 SLIDECODE_DESCRIPTION = """
-SlideCode is a shellcode wrapper that uses 4, 4-byte keys but XOR encodes each byte with the next key. In this way, most bytes are XOR encoded multiple times.
+SlideCode is a shellcode wrapper that uses 4 keys but XOR encodes each byte with the next key. In this way, most bytes are XOR encoded multiple times.
 """
 
 SLIDECODE_IN_HELP = "Pass in the filename of the shellcode to be encoded."
@@ -14,11 +14,17 @@ SLIDECODE_KEY_HELP = """Use this argument to pass in new key values. These key v
     i.e. -k ABCDABCD and not -k \\xAB\\xCD\\xAB\\xCD and also not -k 0xABCDABCD.
 
     Defaults: 12233445, 9944aa72, bccddeef, aaaaaaaa
+    
+    NOTE: These should be extended for 64-bit payloads. i.e. 1223344512233445,...
 
 """
 
 SLIDECODE_TRAILER_HELP = """Use this flag to change the trailer that is appended to the encoded shellcode that is used by the decoder. Default: aabbccdd.
-    i.e. -t 90909090 and not -t \\x90\\x90\\x90\\x90 and also not -t 0x90919293."""
+    i.e. -t 90909090 and not -t \\x90\\x90\\x90\\x90 and also not -t 0x90919293.
+    
+    NOTE: These should be extended for 64-bit payloads. i.e. 1223344512233445,...
+    
+"""
 
 SLIDECODE_TOO_MANY_KEYS = "[!] Too many keys provided, only the first four will be used."
 
