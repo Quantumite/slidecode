@@ -27,7 +27,7 @@ def main():
         dest="trailer", help=slidecode.SLIDECODE_TRAILER_HELP)
 
     parser.add_argument("--64",
-        dest="is64", action="store_true", help=slidecode.SLIDECODE_TRAILER_HELP)
+        dest="is64", action="store_true", help=slidecode.SLIDECODE_ARCH_64)
 
     args = parser.parse_args()
 
