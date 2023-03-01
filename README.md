@@ -4,12 +4,11 @@
 - Author: Austin Norby
 - Date: 05/15/2022
 - Python Module Name: slidecode
-- Description: SlideCode is a shellcode wrapper that uses four, 4-byte keys but XOR encodes each byte with the next 4-byte key. In this way, most bytes are XOR encoded multiple times. In order to use slidecode, you must provide it with binary shellcode that needs to be encoded. Slidecode will encode the original shellcode using the multiple XOR key algorithm and attach a header and trailer to the shellcode. The header and trailer, by default, are null-free, and if the encoded payload contains nulls it is possible to use one, two, three, or four different keys to remove the null bytes after encoding. This encoded shellcode can then be used as part of an exploit just like any other shellcode. NOTE: 32bit only (for now).
+- Description: SlideCode is a shellcode wrapper that uses four, 4-byte (i386) or 8-byte (x86_64), keys but XOR encodes each byte with the next key. In this way, most bytes are XOR encoded multiple times. In order to use slidecode, you must provide it with binary shellcode that needs to be encoded. Slidecode will encode the original shellcode using the multiple XOR key algorithm and attach a header and trailer to the shellcode. The header and trailer, by default, are null-free, and if the encoded payload contains nulls it is possible to use one, two, three, or four different keys to remove the null bytes after encoding. This encoded shellcode can then be used as part of an exploit just like any other shellcode. Now supports 32-bit and 64-bit shellcode!
 - Tested on Windows 11 with Python 3.8.5 and Windbg
-  - 32bit encoding only (so far)
 
 ## Video Link
-- [Link](https://youtu.be/TqMWnprlpXo)
+- [Link](https://youtu.be/TqMWnprlpXo) (old)
 
 ## Installation
 - Requires python to be installed
@@ -43,6 +42,9 @@ optional arguments:
                         Use this flag to change the trailer that is appended to the encoded shellcode that is used by
                         the decoder. Default: aabbccdd. i.e. -t 90909090 and not -t \x90\x90\x90\x90 and also not -t
                         0x90919293.
+  --64                  Use this flag to change the trailer that is appended to the encoded shellcode that is used by
+                        the decoder. Default: aabbccdd. i.e. -t 90909090 and not -t \x90\x90\x90\x90 and also not -t
+                        0x90919293.
 ```
 
 ## Examples
@@ -65,6 +67,11 @@ python -m slidecode -i shellcode.bin -t 90919091
 - Wrap shellcode and modify the trailer and XOR keys while providing input and output files while being verbose.
 ```sh
 python -m slidecode -v --in shellcode.bin --out encoded_shellcode.bin -k aaaaaaaa,ffffffff,12121212,79797979 -t cccccccc
+```
+
+- Wrap 64-bit shellcode with input and output files
+```sh
+python -m slidecode --in shellcode.bin --out encoded_shellcode.bin --64
 ```
 
 ## Additional Resources
