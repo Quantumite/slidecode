@@ -42,9 +42,7 @@ optional arguments:
                         Use this flag to change the trailer that is appended to the encoded shellcode that is used by
                         the decoder. Default: aabbccdd. i.e. -t 90909090 and not -t \x90\x90\x90\x90 and also not -t
                         0x90919293.
-  --64                  Use this flag to change the trailer that is appended to the encoded shellcode that is used by
-                        the decoder. Default: aabbccdd. i.e. -t 90909090 and not -t \x90\x90\x90\x90 and also not -t
-                        0x90919293.
+  --64                  If you are creating a 64-bit payload, use this flag.
 ```
 
 ## Examples
