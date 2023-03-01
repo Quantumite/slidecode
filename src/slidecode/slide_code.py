@@ -3,7 +3,7 @@ import slidecode.slide_code_constants
 
 class SlideCode():
     """SlideCode class manages encoding process."""
-    def __init__(self, infile=None, outfile=None, verbose=False, key_string=None, trailer=None):
+    def __init__(self, infile=None, outfile=None, verbose=False, key_string=None, trailer=None, arch=32):
         #Intialize member variables
         self.infile = infile
         self.outfile = outfile
@@ -14,6 +14,7 @@ class SlideCode():
         self._encoded_bytes = []
         self._header = None
         self._trailer = trailer
+        self.arch = arch
 
         #Read in shellcode if given
         if self.infile is not None:
@@ -27,12 +28,20 @@ class SlideCode():
 
         #Read in slidecode assembly header from package
         _curdir = os.path.dirname(os.path.abspath(__file__))
-        if os.path.exists(f"{_curdir}\\slidecode_header.bin"):
-            with open(f"{_curdir}\\slidecode_header.bin", 'rb') as h:
-                self._header = bytearray(h.read())
+        if self.arch == 32:
+            if os.path.exists(f"{_curdir}\\slidecode_header.bin"):
+                with open(f"{_curdir}\\slidecode_header.bin", 'rb') as h:
+                    self._header = bytearray(h.read())
 
             if self.verbose:
                 print(f"[*] First few bytes of header: {self._header[:6]}")
+        elif self.arch == 64:
+            if os.path.exists(f"{_curdir}\\slidecode_header64.bin"):
+                with open(f"{_curdir}\\slidecode_header64.bin", 'rb') as h:
+                    self._header = bytearray(h.read())
+
+            if self.verbose:
+                print(f"[*] First few bytes of header64: {self._header[:6]}")
         else:
             if self.verbose:
                 print(f"[!] No shellcode header found.")
@@ -41,35 +50,83 @@ class SlideCode():
     def set_first_key(self, key_value):
         """Set new value for first shellcode key."""
         #Parses value given for first key and applies it to the correct offset.
-        self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY] = int(key_value[:2], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+1] = int(key_value[2:4], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+2] = int(key_value[4:6], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+3] = int(key_value[6:8], 16)
+        if self.arch == 32:
+            self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY+3] = int(key_value[6:8], 16)
+        elif self.arch == 64:
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+3] = int(key_value[6:8], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+4] = int(key_value[8:10], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+5] = int(key_value[10:12], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+6] = int(key_value[12:14], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY+7] = int(key_value[14:16], 16)
+        else:
+            print(f"[!] Invalid architecture during set_first_key()")
+
 
     def set_second_key(self, key_value):
-        """Set new value for first shellcode key."""
+        """Set new value for second shellcode key."""
         #Parses value given for second key and applies it to the correct offset.
-        self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY] = int(key_value[:2], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+1] = int(key_value[2:4], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+2] = int(key_value[4:6], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+3] = int(key_value[6:8], 16)
+        if self.arch == 32:
+            self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY+3] = int(key_value[6:8], 16)
+        elif self.arch == 64:
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+3] = int(key_value[6:8], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+4] = int(key_value[8:10], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+5] = int(key_value[10:12], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+6] = int(key_value[12:14], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY+7] = int(key_value[14:16], 16)
+        else:
+            print(f"[!] Invalid architecture during set_second_key()")
 
     def set_third_key(self, key_value):
-        """Set new value for first shellcode key."""
+        """Set new value for third shellcode key."""
         #Parses value given for third key and applies it to the correct offset.
-        self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY] = int(key_value[:2], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+1] = int(key_value[2:4], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+2] = int(key_value[4:6], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+3] = int(key_value[6:8], 16)
+        if self.arch == 32:
+            self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY+3] = int(key_value[6:8], 16)
+        elif self.arch == 64:
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+3] = int(key_value[6:8], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+4] = int(key_value[8:10], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+5] = int(key_value[10:12], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+6] = int(key_value[12:14], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY+7] = int(key_value[14:16], 16)
+        else:
+            print(f"[!] Invalid architecture during set_third_key()")
 
     def set_fourth_key(self, key_value):
-        """Set new value for first shellcode key."""
+        """Set new value for fourth shellcode key."""
         #Parses value given for fourth key and applies it to the correct offset.
-        self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY] = int(key_value[:2], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+1] = int(key_value[2:4], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+2] = int(key_value[4:6], 16)
-        self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+3] = int(key_value[6:8], 16)
-
+        if self.arch == 32:
+            self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY+3] = int(key_value[6:8], 16)
+        elif self.arch == 64:
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY] = int(key_value[:2], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+1] = int(key_value[2:4], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+2] = int(key_value[4:6], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+3] = int(key_value[6:8], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+4] = int(key_value[8:10], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+5] = int(key_value[10:12], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+6] = int(key_value[12:14], 16)
+            self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+7] = int(key_value[14:16], 16)
+        else:
+            print(f"[!] Invalid architecture during set_fourth_key()")
 
     def process_key_string(self):
         """Parse and assign key string as shellcode keys."""
@@ -97,10 +154,17 @@ class SlideCode():
 
         if self.verbose:
             print("[*] Keys are now:")
-            print(f"\tKEY 1: {self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY:slidecode.SLIDECODE_OFFSET_FIRST_KEY+4]}")
-            print(f"\tKEY 2: {self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY:slidecode.SLIDECODE_OFFSET_SECOND_KEY+4]}")
-            print(f"\tKEY 3: {self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY:slidecode.SLIDECODE_OFFSET_THIRD_KEY+4]}")
-            print(f"\tKEY 4: {self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY:slidecode.SLIDECODE_OFFSET_FOURTH_KEY+4]}")
+            if self.arch == 32:
+                print(f"\tKEY 1: {self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY:slidecode.SLIDECODE_OFFSET_FIRST_KEY+4]}")
+                print(f"\tKEY 2: {self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY:slidecode.SLIDECODE_OFFSET_SECOND_KEY+4]}")
+                print(f"\tKEY 3: {self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY:slidecode.SLIDECODE_OFFSET_THIRD_KEY+4]}")
+                print(f"\tKEY 4: {self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY:slidecode.SLIDECODE_OFFSET_FOURTH_KEY+4]}")
+            elif self.arch == 64:
+                print(f"\tKEY 1: {self._header[slidecode.SLIDECODE_OFFSET_FIRST_KEY:slidecode.SLIDECODE_OFFSET_FIRST_KEY+8]}")
+                print(f"\tKEY 2: {self._header[slidecode.SLIDECODE_OFFSET_SECOND_KEY:slidecode.SLIDECODE_OFFSET_SECOND_KEY+8]}")
+                print(f"\tKEY 3: {self._header[slidecode.SLIDECODE_OFFSET_THIRD_KEY:slidecode.SLIDECODE_OFFSET_THIRD_KEY+8]}")
+                print(f"\tKEY 4: {self._header[slidecode.SLIDECODE_OFFSET_FOURTH_KEY:slidecode.SLIDECODE_OFFSET_FOURTH_KEY+8]}")
+
 
 
     def process_trailer(self, trailer_value):
@@ -115,16 +179,32 @@ class SlideCode():
                     _trailer_offset = i
                 
         #Similar parsing to key values, but only one since the trailer
-        # is only 4 bytes.
-        self._header[_trailer_offset] = int(trailer_value[:2], 16)
-        self._header[_trailer_offset+1] = int(trailer_value[2:4], 16)
-        self._header[_trailer_offset+2] = int(trailer_value[4:6], 16)
-        self._header[_trailer_offset+3] = int(trailer_value[6:8], 16)
+        # is 4 bytes (32-bit) or 8 bytes (64-bit).
+        if self.arch == 32:
+            self._header[_trailer_offset] = int(trailer_value[:2], 16)
+            self._header[_trailer_offset+1] = int(trailer_value[2:4], 16)
+            self._header[_trailer_offset+2] = int(trailer_value[4:6], 16)
+            self._header[_trailer_offset+3] = int(trailer_value[6:8], 16)
+        elif self.arch == 64:
+            self._header[_trailer_offset] = int(trailer_value[:2], 16)
+            self._header[_trailer_offset+1] = int(trailer_value[2:4], 16)
+            self._header[_trailer_offset+2] = int(trailer_value[4:6], 16)
+            self._header[_trailer_offset+3] = int(trailer_value[6:8], 16)
+            self._header[_trailer_offset+4] = int(trailer_value[8:10], 16)
+            self._header[_trailer_offset+5] = int(trailer_value[10:12], 16)
+            self._header[_trailer_offset+6] = int(trailer_value[12:14], 16)
+            self._header[_trailer_offset+7] = int(trailer_value[14:16], 16)
+        else:
+            print(f"[!] Invalid architecture while processing trailer.")
+
 
         #Convert trailer string to bytearray for output
-        self._trailer = bytearray(self._header[_trailer_offset:_trailer_offset+4])
-
-
+        if self.arch == 32:
+            self._trailer = bytearray(self._header[_trailer_offset:_trailer_offset+4])
+        elif self.arch == 64:
+            self._trailer = bytearray(self._header[_trailer_offset:_trailer_offset+8])
+        else:
+            print("[!] Invalid architecture while processing trailer.")
 
     def encode(self):
         """Encode provided shellcode."""
@@ -144,26 +224,40 @@ class SlideCode():
             if self.verbose:
                 print(f'[*] KEY: {KEY}')
 
-            #encode entire dword
-            if self.verbose:
-                print(f"[*] KEY[0]: {hex(KEY[0])}, byte[{i}]: {hex(self._infile_bytes[i])}", end=", ")
-                print(f"XOR: {hex(KEY[0] ^ self._infile_bytes[i])}")
-            self._infile_bytes[i] = KEY[0] ^ self._infile_bytes[i]
+            for j in range(0,4):
+                #encode entire dword
+                if self.verbose:
+                    print(f"[*] KEY[{j}]: {hex(KEY[j])}, byte[{i+j}]: {hex(self._infile_bytes[i+j])}", end=", ")
+                    print(f"XOR: {hex(KEY[j] ^ self._infile_bytes[i+j])}")
+                self._infile_bytes[i+j] = KEY[j] ^ self._infile_bytes[i+j]
 
-            if self.verbose:
-                print(f"[*] KEY[1]: {hex(KEY[1])}, byte[{i+1}]: {hex(self._infile_bytes[i+1])}", end=", ")
-                print(f"XOR: {hex(KEY[1] ^ self._infile_bytes[i+1])}")
-            self._infile_bytes[i+1] = KEY[1] ^ self._infile_bytes[i+1]
-            
-            if self.verbose:
-                print(f"[*] KEY[2]: {hex(KEY[2])}, byte[{i+2}]: {hex(self._infile_bytes[i+2])}", end=", ")
-                print(f"XOR: {hex(KEY[2] ^ self._infile_bytes[i+2])}")
-            self._infile_bytes[i+2] = KEY[2] ^ self._infile_bytes[i+2]
+        #Convert to bytearray for output
+        self._encoded_bytes = bytearray(self._infile_bytes)
 
+    def encode64(self):
+        """Encode provided shellcode."""
+        #Keys are grabbed from the header shellcode in case they
+        # were modified by the user
+        KEYS = [
+            bytearray(self._header[slidecode.SLIDECODE64_OFFSET_FIRST_KEY:slidecode.SLIDECODE64_OFFSET_FIRST_KEY+8]),
+            bytearray(self._header[slidecode.SLIDECODE64_OFFSET_SECOND_KEY:slidecode.SLIDECODE64_OFFSET_SECOND_KEY+8]),
+            bytearray(self._header[slidecode.SLIDECODE64_OFFSET_THIRD_KEY:slidecode.SLIDECODE64_OFFSET_THIRD_KEY+8]),
+            bytearray(self._header[slidecode.SLIDECODE64_OFFSET_FOURTH_KEY:slidecode.SLIDECODE64_OFFSET_FOURTH_KEY+8]),
+        ]
+
+        #iterate through the length - 3 because operation applies to entire dword from address; address + 3 bytes more is full DWORD
+        for i in range(0, len(self._infile_bytes)-7):
+            #rotate through keys
+            KEY = KEYS[i%4]
             if self.verbose:
-                print(f"[*] KEY[3]: {hex(KEY[3])}, byte[{i+3}]: {hex(self._infile_bytes[i+3])}", end=", ")
-                print(f"XOR: {hex(KEY[3] ^ self._infile_bytes[i+3])}")
-            self._infile_bytes[i+3] = KEY[3] ^ self._infile_bytes[i+3]
+                print(f'[*] KEY: {KEY}')
+
+            for j in range(0,8):
+                #encode entire dword
+                if self.verbose:
+                    print(f"[*] KEY[{j}]: {hex(KEY[j])}, byte[{i+j}]: {hex(self._infile_bytes[i+j])}", end=", ")
+                    print(f"XOR: {hex(KEY[j] ^ self._infile_bytes[i+j])}")
+                self._infile_bytes[i+j] = KEY[j] ^ self._infile_bytes[i+j]
 
         #Convert to bytearray for output
         self._encoded_bytes = bytearray(self._infile_bytes)
@@ -182,9 +276,20 @@ class SlideCode():
             self.process_trailer(self._trailer)
         else:
             #Default value
-            self._trailer = b"\xaa\xbb\xcc\xdd"
+            if self.arch == 32:
+                self._trailer = b"\xaa\xbb\xcc\xdd"
+            elif self.arch == 64:
+                self._trailer = b"\xaa\xbb\xcc\xdd\xaa\xbb\xcc\xdd"
+            else:
+                print(f"[!] Invalid architecture while setting default trailer.")
 
-        self.encode()
+        if self.arch == 32:
+            self.encode()
+        elif self.arch == 64:
+            self.encode64()
+        else:
+            print(f"[!] Invalid architecture while encoding bytes.")
+
         self._outfile_bytes = self._header
         if self.verbose:
             print("[*] Writing encoded payload to file.")
@@ -198,8 +303,15 @@ class SlideCode():
                 f.write(self._outfile_bytes)
         else:
             #Default output file
-            with open("slidecode_output.bin", 'wb') as f:
-                f.write(self._outfile_bytes)
+            if self.arch == 32:
+                with open("slidecode_output.bin", 'wb') as f:
+                    f.write(self._outfile_bytes)
+            elif self.arch == 64:
+                with open("slidecode_output64.bin", 'wb') as f:
+                    f.write(self._outfile_bytes)
+            else:
+                print(f"Invalid architecture while writing output file.")
+
 
 
 

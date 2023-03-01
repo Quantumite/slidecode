@@ -26,10 +26,13 @@ def main():
     parser.add_argument("--trailer", "-t",
         dest="trailer", help=slidecode.SLIDECODE_TRAILER_HELP)
 
+    parser.add_argument("--64",
+        dest="is64", action="store_true", help=slidecode.SLIDECODE_TRAILER_HELP)
+
     args = parser.parse_args()
 
     #Setup SlideCode object
-    sc = slidecode.SlideCode(infile=args.in_file, outfile=args.out_file, verbose=args.verbose, key_string=args.keys, trailer=args.trailer)
+    sc = slidecode.SlideCode(infile=args.in_file, outfile=args.out_file, verbose=args.verbose, key_string=args.keys, trailer=args.trailer, arch=64 if args.is64 else 32)
 
     #Encode and produce shellcode
     sc.run()
